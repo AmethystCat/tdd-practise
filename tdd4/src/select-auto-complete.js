@@ -1,14 +1,14 @@
 function SelectAutoComplete(renderContainer, foods) {
-
-    function generateLi() {
-        return foods.map(function(food) {
-            return '<li data-id="' + food.id + '"><a href="#">'+ food.name +'</a></li>';
+    var foods = foods;
+    function generateLi(foods) {
+        return foods.map(function (food) {
+            return '<li data-id="' + food.id + '"><a href="#">' + food.name + '</a></li>';
         });
     }
 
     function getDom() {
         var $selectWrapper = $('<div class="select-wrapper"></div>');
-        var li = generateLi().join('');
+        var li = generateLi(foods).join('');
         var $input = $('<input type="text" class="select-input"/>');
         var $ul = $('<ul class="select-list hide"></ul>');
         $ul.append(li);
@@ -17,31 +17,70 @@ function SelectAutoComplete(renderContainer, foods) {
         return $selectWrapper;
     }
 
-    function domEventAndStateInit() {
-        var $input = $('.select-input'),
-            $ul = $('.select-list');
-
-        $input
-            .on('focus', function() {
-                $ul.removeClass('hide');
-            })
-            .on('blur', function () {
-                $ul.addClass('hide');
-            });
-
-        $input.val(foods[0].name || '');
+    function input(queryFood) {
+        return foods.filter(function(food) {
+            return food.name.indexOf(queryFood) !== -1;
+        });
     }
 
     return {
+        domEventAndStateInit: function(cb) {
+            var $input = $('.select-input'),
+                $ul = $('.select-list'),
+                _this = this;
+
+            function hide(el) {
+                el.addClass('hide');
+            }
+
+            function show(el) {
+                el.removeClass('hide');
+            }
+
+            $input
+                .val(foods[0].name || '')
+                .on('focus', function () {
+                    show($ul);
+                })
+                .on('keyup', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    console.log(e.which);
+                    var inputValue = $(this).val();
+                    _this.refresh(inputValue);
+                });
+
+            $ul.on('click', 'li', function () {
+                $input.val($(this).children('a').text());
+                hide($(this).parent());
+            });
+
+            $(document).on('click', function (e) {
+                var $target = $(e.target);
+                var hasNoSelectWrapperElements = !( $target.parents('.select-wrapper').length ||
+                                                    $target.hasClass('.select-wrapper') );
+                if (hasNoSelectWrapperElements) {
+                    hide($ul);
+                }
+            });
+
+            cb && cb();
+        },
         getFoods: function () {
             return foods;
         },
-        render: function () {
+        render: function (cb) {
             var $selectWrapper = getDom();
             renderContainer.html('').append($selectWrapper);
-            domEventAndStateInit();
-
+            this.domEventAndStateInit(cb);
             return $selectWrapper;
+        },
+        refresh: function(queryFood) {
+            var $selectList = $('.select-list');
+            var filterFoods = input(queryFood);
+            var li = generateLi(filterFoods);
+            $selectList.html(li);
+            return $selectList.find('li');
         }
     };
 }

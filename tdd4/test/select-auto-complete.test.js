@@ -17,6 +17,7 @@ QUnit.module('select auto complete component test', {
     },
     after: function () {
         this.targetTestComponent = null;
+        $('#test').html('');
     }
 }, function () {
     QUnit.test('should_has_a_div_container_with_a_wrapper_class_when_rendered', function (assert) {
@@ -79,8 +80,6 @@ QUnit.module('select auto complete component test', {
         var firstFoodName = foods[0].name;
         var firstLiDataId = $li.eq(0).data('id');
         var firstLiName = $li.eq(0).children('a').text();
-        console.log(firstLiDataId);
-
         // then
         assert.equal(firstLiDataId, firstFoodId);
         assert.equal(firstLiName, firstFoodName);
@@ -107,14 +106,14 @@ QUnit.module('select auto complete component test', {
         assert.notOk(hasHideClass);
     });
 
-    QUnit.test('should_ul_has_hide_class_when_input_blur', function (assert) {
+    QUnit.test('should_ul_has_hide_class_when_click_body_but_select_wrapper', function (assert) {
         // given
         var $selectWrapper = this.targetTestComponent.render();
         var $input = $selectWrapper.children('input'),
             $ul = $selectWrapper.children('ul');
         $input.focus();
         // when
-        $input.blur();
+        $('body').click();
         var hasHideClass = $ul.hasClass('hide');
         // then
         assert.ok(hasHideClass);
@@ -128,5 +127,59 @@ QUnit.module('select auto complete component test', {
         // when
         // then
         assert.equal(inputDefaultValue, firstFoodName);
+    });
+
+    QUnit.test('should_refresh_output_all_food_when_input_""', function (assert) {
+        // given
+        var input = '';
+        var foods = this.targetTestComponent.getFoods();
+        // when
+        var $liLength = this.targetTestComponent.refresh(input).length;
+        var foodsLength = foods.length;
+        // then
+        assert.equal($liLength, foodsLength);
+    });
+
+    QUnit.test('土豆=>土豆丝，排骨烧土豆', function(assert) {
+        // given
+        var input = '土豆',
+            foods = this.targetTestComponent.getFoods();
+        // when
+        var $li = this.targetTestComponent.refresh(input);
+        var firstLi = $li.eq(0),
+            secondLi = $li.eq(1);
+        // then
+        assert.equal(firstLi.data('id'), foods[1].id);
+        assert.equal(secondLi.data('id'), foods[2].id);
+        assert.equal(firstLi.children('a').text(), foods[1].name);
+        assert.equal(secondLi.children('a').text(), foods[2].name);
+    });
+
+    QUnit.test('should_input_value_equal_li_item_text_when_second_li_clicked', function (assert) {
+        // given
+        var $selectWrapper = this.targetTestComponent.render();
+        var $secondLi = $selectWrapper.find('li').eq(1);
+        var $input = $selectWrapper.find('input');
+        // when
+        $secondLi.click();
+        var value = $input.val();
+        var $secondLiText = $secondLi.children('a').text();
+        // then
+        assert.equal(value, $secondLiText);
+    });
+
+    QUnit.test('should_ul_has_hide_class_when_li_item_clicked', function (assert) {
+        // given
+        var $selectWrapper = this.targetTestComponent.render();
+        var $secondLi = $selectWrapper.find('li').eq(1);
+        var $input = $selectWrapper.find('input');
+        var $ul = $selectWrapper.find('ul');
+        // when
+        $input.focus();
+        $secondLi.click();
+        var hasHideClass = $ul.hasClass('hide');
+        console.log($ul.attr('class'));
+        // then
+        assert.ok(hasHideClass);
     });
 });
