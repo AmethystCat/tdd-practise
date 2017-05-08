@@ -11,7 +11,7 @@ var Food = function () {
 
 QUnit.module('select auto complete component test', {
     before: function () {
-        var renderContainer = $('test');
+        var renderContainer = $('#test');
         var foods = new Food();
         this.targetTestComponent = new SelectAutoComplete(renderContainer, foods);
     },
@@ -70,4 +70,63 @@ QUnit.module('select auto complete component test', {
         assert.equal(lengthOfLi, lengthOfFoods);
     });
 
+    QUnit.test('should_first_li_data_id_and_name_equal_first_food_id_name', function(assert) {
+        // given
+        var foods = this.targetTestComponent.getFoods();
+        var $li = this.targetTestComponent.render().find('ul').children('li');
+        // when
+        var firstFoodId = foods[0].id;
+        var firstFoodName = foods[0].name;
+        var firstLiDataId = $li.eq(0).data('id');
+        var firstLiName = $li.eq(0).children('a').text();
+        console.log(firstLiDataId);
+
+        // then
+        assert.equal(firstLiDataId, firstFoodId);
+        assert.equal(firstLiName, firstFoodName);
+    });
+
+    QUnit.test('should_ul_has_hide_class_default', function (assert) {
+        // given
+        var $ul = this.targetTestComponent.render().find('ul');
+        // when
+        var hasHideClass = $ul.hasClass('hide');
+        // then
+        assert.ok(hasHideClass);
+    });
+
+    QUnit.test('should_ul_remove_hide_class_when_input_focus', function (assert) {
+        // given
+        var $selectWrapper = this.targetTestComponent.render();
+        var $input = $selectWrapper.children('input'),
+            $ul = $selectWrapper.children('ul');
+        // when
+        $input.focus();
+        var hasHideClass = $ul.hasClass('hide');
+        // then
+        assert.notOk(hasHideClass);
+    });
+
+    QUnit.test('should_ul_has_hide_class_when_input_blur', function (assert) {
+        // given
+        var $selectWrapper = this.targetTestComponent.render();
+        var $input = $selectWrapper.children('input'),
+            $ul = $selectWrapper.children('ul');
+        $input.focus();
+        // when
+        $input.blur();
+        var hasHideClass = $ul.hasClass('hide');
+        // then
+        assert.ok(hasHideClass);
+    });
+
+    QUnit.test('should_input_default_value_equal_first_food_name', function (assert) {
+        // given
+        var firstFoodName = this.targetTestComponent.getFoods()[0].name;
+        var $input = this.targetTestComponent.render().children('input');
+        var inputDefaultValue = $input.val();
+        // when
+        // then
+        assert.equal(inputDefaultValue, firstFoodName);
+    });
 });
