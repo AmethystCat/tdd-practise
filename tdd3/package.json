@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/_mocha --compilers js:babel-core/register -b -R nyan"
   },
   "author": "hc",
   "license": "ISC",
