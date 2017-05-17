@@ -36,4 +36,17 @@ describe('Taximeter test', () => {
         // then
         expect(finalPrice).to.equal(12.6);
     });
+    it('should_fee_return_13_when_in_pm_11_to_am_6_and_distance_is_3_kilometer', () => {
+        // given
+        const distance = 3;
+        const timeSlot = {start: 'pm->11:00', end: 'am->6:00'};
+        const startingPrice = new StartingPrice(timeSlot);
+        const unitPrice = new UnitPrice(timeSlot);
+        const taximeter = new Taximeter({distance, startingPrice, unitPrice});
+        // when
+        const finalPrice = taximeter.computedPrice();
+        // then
+        expect(finalPrice).to.equal(13);
+    });
+
 });

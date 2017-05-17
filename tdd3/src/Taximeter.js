@@ -1,5 +1,5 @@
 export default class Taximeter {
-    constructor(args) {
+    clonstructor(args) {
         let {distance, startingPrice, unitPrice} = args;
         this.boundaryDistance = 3;
         this.distance = distance;
