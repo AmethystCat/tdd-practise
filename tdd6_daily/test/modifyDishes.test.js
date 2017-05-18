@@ -8,6 +8,15 @@ var rowData = {
     specUuid: '1231',
     isMatch: 1
 };
+var nonMatchRowData = {
+    tpDishId: 1,
+    dishId: '',
+    dishName: '',
+    specId: '',
+    specName: '',
+    specUuid: '',
+    isMatch: 0
+};
 describe('菜品修改测试', function () {
     beforeEach(function() {
         disMatch.modifiedMatchDishes = [];
@@ -98,7 +107,26 @@ describe('菜品修改测试', function () {
         expect(modifiedArr.length).to.equal(1);
         expect(modifiedArr[0]).to.eql(expectRow);
     });
-    it('当修改菜品名称和规格与初始菜品名称规格相同时，修改列表删除该条菜品的修改纪录，理解为该条菜品没有修改过，为初始状态', function () {
+    it('当首次修改菜品名称和规格与初始菜品名称规格相同时，修改列表删除该条菜品的修改纪录，理解为该条菜品没有修改过，为初始状态', function () {
+        // given
+        disMatch.modifiedMatchDishes = [];
+        var modifiedDish = {
+            currentModifiedDishId: 123,
+            currentModifiedSpec: {
+                specName: '规格1',
+                specId: 1231,
+                specUuid: '1231'
+            },
+            rowData: rowData
+        };
+        // when
+        var modifiedArr = disMatch.modifiedMatchDishes = modifyDishes(modifiedDish);
+        console.log(modifiedArr);
+        // then
+        expect(modifiedArr.length).to.equal(0);
+        // expect(modifiedArr[0].tpDishId).to.equal(2);
+    });
+    it('当后续修改菜品名称和规格与初始菜品名称规格相同时，修改列表删除该条菜品的修改纪录，理解为该条菜品没有修改过，为初始状态', function () {
         // given
         disMatch.modifiedMatchDishes = [{
             tpDishId: 1,
@@ -118,12 +146,11 @@ describe('菜品修改测试', function () {
             isMatch: 1
         }];
         var modifiedDish = {
+            currentModifiedDishId: 123,
             currentModifiedSpec: {
-                dishId: 123,
                 specName: '规格1',
                 specId: 1231,
-                specUuid: '1231',
-                rowData: rowData
+                specUuid: '1231'
             },
             rowData: rowData
         };
@@ -156,8 +183,7 @@ describe('菜品修改测试', function () {
             currentModifiedSpec: {
                 specName: '规格1',
                 specId: 1231,
-                specUuid: '1231',
-                rowData: rowData
+                specUuid: '1231'
             },
             rowData: rowData
         };
@@ -166,5 +192,33 @@ describe('菜品修改测试', function () {
         // then
         expect(modifiedArr.length).to.equal(1);
         expect(modifiedArr[0].tpDishId).to.equal(2);
+    });
+    it('当自动匹配后客如云没有对应的匹配菜品，商家点选菜品后，该条第三方菜品的匹配状态由失败改为成功', function () {
+        // given
+        var modifiedDish = {
+            currentModifiedDishId: 123,
+            currentModifiedSpec: {
+                specName: '规格1',
+                specId: 1231,
+                specUuid: '1231'
+            },
+            rowData: nonMatchRowData
+        };
+        // when
+        var modifiedArr = disMatch.modifiedMatchDishes = modifyDishes(modifiedDish);
+        var expectRow = {
+            tpDishId: 1,
+            dishId: 123,
+            dishName: '土豆丝',
+            specId: 1231,
+            specName: '规格1',
+            specUuid: '1231',
+            isMatch: 1
+        };
+        console.log(modifiedDish.rowData.isMatch);
+        // then
+        expect(modifiedArr.length).to.equal(1);
+        expect(modifiedArr[0].isMatch).to.equal(1);
+        expect(modifiedArr[0]).to.eql(expectRow);
     });
 });
