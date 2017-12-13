@@ -1,5 +1,6 @@
-var disMatch = {};
-disMatch.modifiedMatchDishes = [];
+var disMatch = {
+    modifiedMatchDishes: []
+};
 
 Function.prototype.after = function (fn) {
     var self = this;
@@ -12,24 +13,23 @@ Function.prototype.after = function (fn) {
     };
 };
 
-function modifyDishes(dish) {
-    // 简化获取修改的菜品对象
-    function WrapModifyDishToSimple(dish) {
-        return {
-            rowData: dish.rowData,
-            id: dish.currentModifiedDishId || '',
-            specId: dish.currentModifiedSpecId || ''
-        };
-    }
+// 简化获取修改的菜品对象
+function WrapModifyDishToSimple(dish) {
+    return {
+        rowData: dish.rowData,
+        id: dish.currentModifiedDishId || '',
+        specId: dish.currentModifiedSpecId || ''
+    };
+}
 
+function modifyDishes(dish) {
     var hasModifiedBefore = false;
     var isRepeated;
-
     var modifiedIndex = 0;
     var modifiedDishObj = WrapModifyDishToSimple(dish);
-
     var originRowData = modifiedDishObj.rowData;
     var tpId = originRowData.tpDishId;
+
     // 判断该条第三方菜品匹配之前是否被修改
     disMatch.modifiedMatchDishes.forEach(function (dish, index) {
         if (tpId == dish.tpDishId) {
@@ -53,7 +53,8 @@ function pushModified(hasModifiedBefore, isRepeated, modifiedArr, dish) {
         var modifiedTpDish = Object.assign({}, dish.rowData, localMatchDish, {isMatch: 1});
         modifiedArr.push(modifiedTpDish);
         return modifiedArr;
-    } else return next();
+    } 
+    return next();
 }
 
 function updateModified(hasModifiedBefore, isRepeated, modifiedArr, dish, index) {
@@ -72,9 +73,8 @@ function delModified(hasModifiedBefore, isRepeated, modifiedArr, dish, index) {
 }
 
 function nonModify(hasModifiedBefore, isRepeated, modifiedArr) {
-    if (!hasModifiedBefore && isRepeated) {
-        return modifiedArr;
-    } else return next();
+    if (!hasModifiedBefore && isRepeated) return modifiedArr;
+    return next();
 }
 
 function next() {
@@ -86,9 +86,10 @@ function getGivenDishFromLocal(dishId, specId) {
     var targetMatchDish;
     var localDishes = getLocalDishes();
     var matchDish =  localDishes.filter(function (localDish) {
-        return dishId == localDish.dishId;
-    })[0];
+            return dishId == localDish.dishId;
+        })[0];
     var matchSpec = getGivenSpecFromLocalDish(matchDish, specId);
+
     delete matchDish.specs;
     targetMatchDish = Object.assign({}, matchDish, matchSpec);
     return targetMatchDish;
@@ -99,8 +100,9 @@ function getGivenSpecFromLocalDish(matchDish, specId) {
     if (!matchDish) return defaultSpecs;
     var specs = (matchDish.specs && matchDish.specs.length) ? matchDish.specs : [];
     var matchSpec = specs.filter(function (spec) {
-        return specId == spec.specId;
-    });
+            return specId == spec.specId;
+        });
+
     return matchSpec.length > 0 ? matchSpec[0] : defaultSpecs;
 }
 
